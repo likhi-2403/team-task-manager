@@ -1,160 +1,91 @@
-import {
-  useState,
-} from "react";
-
-import axios from "axios";
-
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import API from "../services/api";
 
 const Register = () => {
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const [name, setName] =
-    useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
 
-  const [email, setEmail] =
-    useState("");
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-  const [
-    password,
-    setPassword,
-  ] = useState("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const [role, setRole] =
-    useState("Member");
+    try {
+      const res = await API.post("/auth/register", formData);
 
-  const registerHandler =
-    async (e) => {
-      e.preventDefault();
+      alert("Registration Successful");
 
-      try {
-        const res =
-          await axios.post(
-            "http://localhost:5000/api/users/register",
-            {
-              name,
-              email,
-              password,
-              role,
-            }
-          );
+      navigate("/");
+    } catch (error) {
+      console.log(error);
 
-        localStorage.setItem(
-          "token",
-          res.data.token
-        );
-
-        localStorage.setItem(
-          "userInfo",
-          JSON.stringify(
-            res.data
-          )
-        );
-
-        alert(
-          "Registration Successful"
-        );
-
-        navigate(
-          "/dashboard"
-        );
-      } catch (error) {
-        alert(
-          error.response.data.message
-        );
-      }
-    };
+      alert(
+        error.response?.data?.message || "Registration Failed"
+      );
+    }
+  };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center h-screen bg-gray-100">
       <form
-        onSubmit={
-          registerHandler
-        }
+        onSubmit={handleSubmit}
         className="bg-white p-8 rounded shadow-md w-96"
       >
-        <h1 className="text-4xl font-bold mb-6 text-center">
+        <h2 className="text-4xl font-bold mb-6 text-center">
           Register
-        </h1>
+        </h2>
 
-        {/* NAME */}
         <input
           type="text"
-          placeholder="Enter Name"
-          value={name}
-          onChange={(e) =>
-            setName(
-              e.target.value
-            )
-          }
-          className="w-full p-3 border rounded mb-4"
+          name="name"
+          placeholder="Name"
+          className="w-full border p-3 mb-4 rounded"
+          value={formData.name}
+          onChange={handleChange}
           required
         />
 
-        {/* EMAIL */}
         <input
           type="email"
-          placeholder="Enter Email"
-          value={email}
-          onChange={(e) =>
-            setEmail(
-              e.target.value
-            )
-          }
-          className="w-full p-3 border rounded mb-4"
+          name="email"
+          placeholder="Email"
+          className="w-full border p-3 mb-4 rounded"
+          value={formData.email}
+          onChange={handleChange}
           required
         />
 
-        {/* PASSWORD */}
         <input
           type="password"
-          placeholder="Enter Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(
-              e.target.value
-            )
-          }
-          className="w-full p-3 border rounded mb-4"
+          name="password"
+          placeholder="Password"
+          className="w-full border p-3 mb-4 rounded"
+          value={formData.password}
+          onChange={handleChange}
           required
         />
 
-        {/* ROLE */}
-        <select
-          value={role}
-          onChange={(e) =>
-            setRole(
-              e.target.value
-            )
-          }
-          className="w-full p-3 border rounded mb-4"
+        <button
+          type="submit"
+          className="w-full bg-blue-700 text-white p-3 rounded"
         >
-          <option value="Member">
-            Member
-          </option>
-
-          <option value="Admin">
-            Admin
-          </option>
-        </select>
-
-        {/* BUTTON */}
-        <button className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700">
           Register
         </button>
 
         <p className="mt-4 text-center">
-          Already have an
-          account?
-          {" "}
-          <Link
-            to="/"
-            className="text-blue-600"
-          >
+          Already have an account?{" "}
+          <Link to="/" className="text-blue-700">
             Login
           </Link>
         </p>
