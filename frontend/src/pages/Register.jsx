@@ -9,6 +9,7 @@ const Register = () => {
     name: "",
     email: "",
     password: "",
+    role: "member",
   });
 
   const handleChange = (e) => {
@@ -24,70 +25,124 @@ const Register = () => {
     try {
       const res = await API.post("/auth/register", formData);
 
-      alert("Registration Successful");
+      console.log(res.data);
 
+      alert("Registration Successful");
       navigate("/");
     } catch (error) {
-      console.log(error);
-
-      alert(
-        error.response?.data?.message || "Registration Failed"
-      );
+      console.error(error);
+      alert("Registration Failed");
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f3f4f6",
+      }}
+    >
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded shadow-md w-96"
+        style={{
+          width: "350px",
+          padding: "30px",
+          backgroundColor: "white",
+          borderRadius: "10px",
+          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+        }}
       >
-        <h2 className="text-4xl font-bold mb-6 text-center">
+        <h1
+          style={{
+            textAlign: "center",
+            marginBottom: "20px",
+          }}
+        >
           Register
-        </h2>
+        </h1>
 
         <input
           type="text"
           name="name"
-          placeholder="Name"
-          className="w-full border p-3 mb-4 rounded"
+          placeholder="Enter Name"
           value={formData.name}
           onChange={handleChange}
           required
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "15px",
+          }}
         />
 
         <input
           type="email"
           name="email"
-          placeholder="Email"
-          className="w-full border p-3 mb-4 rounded"
+          placeholder="Enter Email"
           value={formData.email}
           onChange={handleChange}
           required
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "15px",
+          }}
         />
 
         <input
           type="password"
           name="password"
-          placeholder="Password"
-          className="w-full border p-3 mb-4 rounded"
+          placeholder="Enter Password"
           value={formData.password}
           onChange={handleChange}
           required
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "15px",
+          }}
         />
+
+        <select
+          name="role"
+          value={formData.role}
+          onChange={handleChange}
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "20px",
+          }}
+        >
+          <option value="member">Member</option>
+          <option value="admin">Admin</option>
+        </select>
 
         <button
           type="submit"
-          className="w-full bg-blue-700 text-white p-3 rounded"
+          style={{
+            width: "100%",
+            padding: "10px",
+            backgroundColor: "#2563eb",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
         >
           Register
         </button>
 
-        <p className="mt-4 text-center">
+        <p
+          style={{
+            marginTop: "15px",
+            textAlign: "center",
+          }}
+        >
           Already have an account?{" "}
-          <Link to="/" className="text-blue-700">
-            Login
-          </Link>
+          <Link to="/">Login</Link>
         </p>
       </form>
     </div>

@@ -1,440 +1,162 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import axios from "axios";
-
-import Navbar from "../components/Navbar";
-
-import {
-  PieChart,
-  Pie,
-  Tooltip,
-  Cell,
-} from "recharts";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import API from "../services/api";
 
 const Dashboard = () => {
-  const [tasks, setTasks] =
-    useState([]);
+  const [tasks, setTasks] = useState([]);
 
-  const [projects, setProjects] =
-    useState([]);
-
-  const [title, setTitle] =
-    useState("");
-
-  const [
-    description,
-    setDescription,
-  ] = useState("");
-
-  const [editingProjectId,
-  setEditingProjectId] =
-    useState(null);
-
-  // USER INFO
-  const userInfo =
-    JSON.parse(
-      localStorage.getItem(
-        "userInfo"
-      )
-    );
-
-  // FETCH TASKS
-  const fetchTasks =
-    async () => {
-      try {
-        const res =
-          await axios.get(
-            "http://localhost:5000/api/tasks"
-          );
-
-        setTasks(
-          res.data
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-  // FETCH PROJECTS
-  const fetchProjects =
-    async () => {
-      try {
-        const res =
-          await axios.get(
-            "http://localhost:5000/api/projects"
-          );
-
-        setProjects(
-          res.data
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-  // CREATE PROJECT
-  const createProject =
-    async () => {
-      try {
-        await axios.post(
-          "http://localhost:5000/api/projects",
-          {
-            title,
-            description,
-          }
-        );
-
-        setTitle("");
-
-        setDescription("");
-
-        fetchProjects();
-
-        alert(
-          "Project Created"
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-  // EDIT PROJECT
-  const editProject =
-    async (id) => {
-      try {
-        await axios.put(
-          `http://localhost:5000/api/projects/edit/${id}`,
-          {
-            title,
-            description,
-          }
-        );
-
-        setTitle("");
-
-        setDescription("");
-
-        setEditingProjectId(
-          null
-        );
-
-        fetchProjects();
-
-        alert(
-          "Project Updated"
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-  // DELETE PROJECT
-  const deleteProject =
-    async (id) => {
-      try {
-        await axios.delete(
-          `http://localhost:5000/api/projects/${id}`
-        );
-
-        fetchProjects();
-
-        alert(
-          "Project Deleted"
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    };
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTasks();
-
-    fetchProjects();
   }, []);
 
-  // ANALYTICS
-  const completedTasks =
-    tasks.filter(
-      (task) =>
-        task.status ===
-        "Completed"
-    ).length;
+  const fetchTasks = async () => {
+    try {
+      const res = await API.get("/tasks");
+      setTasks(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  const pendingTasks =
-    tasks.filter(
-      (task) =>
-        task.status ===
-        "Pending"
-    ).length;
+  const logoutHandler = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-  const highPriorityTasks =
-    tasks.filter(
-      (task) =>
-        task.priority ===
-        "High"
-    ).length;
+    navigate("/");
+  };
 
-  // CHART DATA
-  const chartData = [
-    {
-      name: "Completed",
-      value:
-        completedTasks,
-    },
+  const completedTasks = tasks.filter(
+    (task) => task.status === "Completed"
+  );
 
-    {
-      name: "Pending",
-      value:
-        pendingTasks,
-    },
-  ];
+  const pendingTasks = tasks.filter(
+    (task) => task.status === "Pending"
+  );
 
-  const COLORS = [
-    "#22c55e",
-    "#eab308",
-  ];
+  const highPriorityTasks = tasks.filter(
+    (task) => task.priority === "High"
+  );
+
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
-    <div>
-      {/* NAVBAR */}
-      <Navbar />
+    <div
+      style={{
+        backgroundColor: "#f3f4f6",
+        minHeight: "100vh",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "#2563eb",
+          color: "white",
+          padding: "20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h1>Team Task Manager</h1>
 
-      <div className="p-10 bg-gray-100 min-h-screen">
-        {/* TITLE */}
-        <h1 className="text-6xl font-bold mb-10">
-          Dashboard
-        </h1>
-
-        {/* ANALYTICS */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-          <div className="bg-blue-500 text-white p-6 rounded">
-            <h2 className="text-3xl font-bold">
-              Total Tasks
-            </h2>
-
-            <p className="text-6xl mt-4">
-              {
-                tasks.length
-              }
-            </p>
-          </div>
-
-          <div className="bg-green-500 text-white p-6 rounded">
-            <h2 className="text-3xl font-bold">
-              Completed
-            </h2>
-
-            <p className="text-6xl mt-4">
-              {
-                completedTasks
-              }
-            </p>
-          </div>
-
-          <div className="bg-yellow-500 text-white p-6 rounded">
-            <h2 className="text-3xl font-bold">
-              Pending
-            </h2>
-
-            <p className="text-6xl mt-4">
-              {
-                pendingTasks
-              }
-            </p>
-          </div>
-
-          <div className="bg-red-500 text-white p-6 rounded">
-            <h2 className="text-3xl font-bold">
-              High Priority
-            </h2>
-
-            <p className="text-6xl mt-4">
-              {
-                highPriorityTasks
-              }
-            </p>
-          </div>
-        </div>
-
-        {/* CHART */}
-        <div className="bg-white p-8 rounded shadow mb-10">
-          <h2 className="text-4xl font-bold mb-6">
-            Task Analytics
-          </h2>
-
-          <PieChart
-            width={500}
-            height={400}
-          >
-            <Pie
-              data={
-                chartData
-              }
-              dataKey="value"
-              cx="50%"
-              cy="50%"
-              outerRadius={
-                120
-              }
-              label
-            >
-              {chartData.map(
-                (
-                  entry,
-                  index
-                ) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={
-                      COLORS[
-                        index
-                      ]
-                    }
-                  />
-                )
-              )}
-            </Pie>
-
-            <Tooltip />
-          </PieChart>
-        </div>
-
-        {/* ADMIN ONLY */}
-        {userInfo?.role ===
-          "Admin" && (
-          <div className="bg-white p-8 rounded shadow mb-10">
-            <h2 className="text-4xl font-bold mb-6">
-              {editingProjectId
-                ? "Edit Project"
-                : "Create Project"}
-            </h2>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-
-                if (
-                  editingProjectId
-                ) {
-                  editProject(
-                    editingProjectId
-                  );
-                } else {
-                  createProject();
-                }
+        <div>
+          <Link to="/tasks">
+            <button
+              style={{
+                padding: "10px 20px",
+                marginRight: "10px",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
               }}
             >
-              {/* TITLE */}
-              <input
-                type="text"
-                placeholder="Project Title"
-                value={title}
-                onChange={(e) =>
-                  setTitle(
-                    e.target.value
-                  )
-                }
-                className="w-full p-4 border rounded mb-4"
-                required
-              />
+              Tasks
+            </button>
+          </Link>
 
-              {/* DESCRIPTION */}
-              <textarea
-                placeholder="Description"
-                value={
-                  description
-                }
-                onChange={(e) =>
-                  setDescription(
-                    e.target.value
-                  )
-                }
-                className="w-full p-4 border rounded mb-4"
-                rows="4"
-                required
-              />
+          <button
+            onClick={logoutHandler}
+            style={{
+              backgroundColor: "red",
+              color: "white",
+              border: "none",
+              padding: "10px 20px",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Logout
+          </button>
+        </div>
+      </div>
 
-              {/* BUTTON */}
-              <button className="bg-blue-600 text-white px-6 py-3 rounded">
-                {editingProjectId
-                  ? "Update Project"
-                  : "Create Project"}
-              </button>
-            </form>
+      <div style={{ padding: "30px" }}>
+        <h2>Dashboard</h2>
+
+        <p
+          style={{
+            marginBottom: "20px",
+            fontSize: "18px",
+          }}
+        >
+          Welcome, {user?.name}
+        </p>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "20px",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#3b82f6",
+              color: "white",
+              padding: "25px",
+              borderRadius: "10px",
+            }}
+          >
+            <h2>Total Tasks</h2>
+            <h1>{tasks.length}</h1>
           </div>
-        )}
 
-        {/* PROJECTS */}
-        <h2 className="text-5xl font-bold mb-8">
-          Projects
-        </h2>
+          <div
+            style={{
+              backgroundColor: "#22c55e",
+              color: "white",
+              padding: "25px",
+              borderRadius: "10px",
+            }}
+          >
+            <h2>Completed</h2>
+            <h1>{completedTasks.length}</h1>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {projects.map(
-            (
-              project
-            ) => (
-              <div
-                key={
-                  project._id
-                }
-                className="bg-white p-6 rounded shadow"
-              >
-                <h3 className="text-4xl font-bold mb-4">
-                  {
-                    project.title
-                  }
-                </h3>
+          <div
+            style={{
+              backgroundColor: "#eab308",
+              color: "white",
+              padding: "25px",
+              borderRadius: "10px",
+            }}
+          >
+            <h2>Pending</h2>
+            <h1>{pendingTasks.length}</h1>
+          </div>
 
-                <p className="text-2xl mb-4">
-                  {
-                    project.description
-                  }
-                </p>
-
-                {/* BUTTONS */}
-                {userInfo?.role ===
-                  "Admin" && (
-                  <div className="flex gap-4">
-                    {/* EDIT */}
-                    <button
-                      onClick={() => {
-                        setEditingProjectId(
-                          project._id
-                        );
-
-                        setTitle(
-                          project.title
-                        );
-
-                        setDescription(
-                          project.description
-                        );
-                      }}
-                      className="bg-yellow-500 text-white px-5 py-2 rounded"
-                    >
-                      Edit
-                    </button>
-
-                    {/* DELETE */}
-                    <button
-                      onClick={() =>
-                        deleteProject(
-                          project._id
-                        )
-                      }
-                      className="bg-red-500 text-white px-5 py-2 rounded"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </div>
-            )
-          )}
+          <div
+            style={{
+              backgroundColor: "#ef4444",
+              color: "white",
+              padding: "25px",
+              borderRadius: "10px",
+            }}
+          >
+            <h2>High Priority</h2>
+            <h1>{highPriorityTasks.length}</h1>
+          </div>
         </div>
       </div>
     </div>

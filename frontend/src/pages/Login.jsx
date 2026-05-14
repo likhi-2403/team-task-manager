@@ -1,128 +1,121 @@
-import {
-  useState,
-} from "react";
-
-import axios from "axios";
-
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import API from "../services/api";
 
 const Login = () => {
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const [email, setEmail] =
-    useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
-  const [
-    password,
-    setPassword,
-  ] = useState("");
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-  const loginHandler =
-    async (e) => {
-      e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      try {
-        const res =
-          await axios.post(
-            "http://localhost:5000/api/users/login",
-            {
-              email,
-              password,
-            }
-          );
+    try {
+      const res = await API.post("/auth/login", formData);
 
-        // SAVE TOKEN
-        localStorage.setItem(
-          "token",
-          res.data.token
-        );
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-        // SAVE USER
-        localStorage.setItem(
-          "userInfo",
-          JSON.stringify(
-            res.data
-          )
-        );
+      alert("Login Successful");
 
-        alert(
-          "Login Successful"
-        );
+      navigate("/dashboard");
+    } catch (error) {
+      console.log(error);
 
-        // REDIRECT
-        navigate(
-          "/dashboard"
-        );
-      } catch (error) {
-        console.log(error);
-
-        alert(
-          error.response?.data
-            ?.message ||
-            "Login Failed"
-        );
-      }
-    };
+      alert("Login Failed");
+    }
+  };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f3f4f6",
+      }}
+    >
       <form
-        onSubmit={
-          loginHandler
-        }
-        className="bg-white p-8 rounded shadow-md w-96"
+        onSubmit={handleSubmit}
+        style={{
+          width: "350px",
+          padding: "30px",
+          backgroundColor: "white",
+          borderRadius: "10px",
+          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+        }}
       >
-        <h1 className="text-4xl font-bold mb-6 text-center">
+        <h1
+          style={{
+            textAlign: "center",
+            marginBottom: "20px",
+          }}
+        >
           Login
         </h1>
 
-        {/* EMAIL */}
         <input
           type="email"
+          name="email"
           placeholder="Enter Email"
-          value={email}
-          onChange={(e) =>
-            setEmail(
-              e.target.value
-            )
-          }
-          className="w-full p-3 border rounded mb-4"
+          value={formData.email}
+          onChange={handleChange}
           required
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "15px",
+          }}
         />
 
-        {/* PASSWORD */}
         <input
           type="password"
+          name="password"
           placeholder="Enter Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(
-              e.target.value
-            )
-          }
-          className="w-full p-3 border rounded mb-4"
+          value={formData.password}
+          onChange={handleChange}
           required
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "20px",
+          }}
         />
 
-        {/* BUTTON */}
-        <button className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700">
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            padding: "10px",
+            backgroundColor: "#2563eb",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
           Login
         </button>
 
-        <p className="mt-4 text-center">
-          Don't have an
-          account?
-          {" "}
-          <Link
-            to="/register"
-            className="text-blue-600"
-          >
-            Register
-          </Link>
+        <p
+          style={{
+            marginTop: "15px",
+            textAlign: "center",
+          }}
+        >
+          Don't have an account?{" "}
+          <Link to="/register">Register</Link>
         </p>
       </form>
     </div>
