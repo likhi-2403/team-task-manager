@@ -9,6 +9,12 @@ const taskSchema = new mongoose.Schema(
 
     description: {
       type: String,
+      required: true,
+    },
+
+    dueDate: {
+      type: Date,
+      required: true,
     },
 
     priority: {
@@ -19,8 +25,13 @@ const taskSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Pending", "Completed"],
-      default: "Pending",
+      enum: ["To Do", "In Progress", "Done"],
+      default: "To Do",
+    },
+
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
 
     createdBy: {
@@ -33,4 +44,6 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Task", taskSchema);
+const Task = mongoose.model("Task", taskSchema);
+
+export default Task;

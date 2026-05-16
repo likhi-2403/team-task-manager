@@ -1,37 +1,38 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import API from "../services/api";
+import { useNavigate, Link } from "react-router-dom";
+import API from "../api";
 
-const Register = () => {
+function Register() {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "member",
-  });
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("Member");
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await API.post("/auth/register", formData);
+      const { data } = await API.post("/auth/register", {
+        name,
+        email,
+        password,
+        role,
+      });
 
-      console.log(res.data);
+      localStorage.setItem("token", data.token);
 
       alert("Registration Successful");
-      navigate("/");
+
+      navigate("/dashboard");
     } catch (error) {
-      console.error(error);
-      alert("Registration Failed");
+      console.log(error);
+
+      alert(
+        error.response?.data?.message ||
+          "Registration Failed"
+      );
     }
   };
 
@@ -46,90 +47,95 @@ const Register = () => {
       }}
     >
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleRegister}
         style={{
-          width: "350px",
-          padding: "30px",
           backgroundColor: "white",
+          padding: "40px",
           borderRadius: "10px",
-          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+          width: "350px",
+          boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
         }}
       >
-        <h1
+        <h2
           style={{
             textAlign: "center",
-            marginBottom: "20px",
+            marginBottom: "25px",
           }}
         >
           Register
-        </h1>
+        </h2>
 
         <input
           type="text"
-          name="name"
-          placeholder="Enter Name"
-          value={formData.name}
-          onChange={handleChange}
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           required
           style={{
             width: "100%",
-            padding: "10px",
+            padding: "12px",
             marginBottom: "15px",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
           }}
         />
 
         <input
           type="email"
-          name="email"
-          placeholder="Enter Email"
-          value={formData.email}
-          onChange={handleChange}
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
           style={{
             width: "100%",
-            padding: "10px",
+            padding: "12px",
             marginBottom: "15px",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
           }}
         />
 
         <input
           type="password"
-          name="password"
-          placeholder="Enter Password"
-          value={formData.password}
-          onChange={handleChange}
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
           style={{
             width: "100%",
-            padding: "10px",
+            padding: "12px",
             marginBottom: "15px",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
           }}
         />
 
         <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
           style={{
             width: "100%",
-            padding: "10px",
+            padding: "12px",
             marginBottom: "20px",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
           }}
         >
-          <option value="member">Member</option>
-          <option value="admin">Admin</option>
+          <option value="Admin">Admin</option>
+          <option value="Member">Member</option>
         </select>
 
         <button
           type="submit"
           style={{
             width: "100%",
-            padding: "10px",
+            padding: "12px",
             backgroundColor: "#2563eb",
             color: "white",
             border: "none",
             borderRadius: "5px",
             cursor: "pointer",
+            fontSize: "16px",
           }}
         >
           Register
@@ -137,7 +143,7 @@ const Register = () => {
 
         <p
           style={{
-            marginTop: "15px",
+            marginTop: "20px",
             textAlign: "center",
           }}
         >
@@ -147,6 +153,6 @@ const Register = () => {
       </form>
     </div>
   );
-};
+}
 
 export default Register;

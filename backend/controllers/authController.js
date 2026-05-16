@@ -2,6 +2,20 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+// Generate JWT
+
+const generateToken = (id) => {
+  return jwt.sign(
+    { id },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "30d",
+    }
+  );
+};
+
+// Register
+
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -14,7 +28,12 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const salt = await bcrypt.genSalt(10);
+
+    const hashedPassword = await bcrypt.hash(
+      password,
+      salt
+    );
 
     const user = await User.create({
       name,
@@ -24,17 +43,22 @@ export const registerUser = async (req, res) => {
     });
 
     res.status(201).json({
-      message: "User registered successfully",
-      user,
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id),
     });
   } catch (error) {
     console.log(error);
 
     res.status(500).json({
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
+
+// Login
 
 export const loginUser = async (req, res) => {
   try {
@@ -43,38 +67,34 @@ export const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({
-        message: "Invalid credentials",
+      return res.status(401).json({
+        message: "User not found",
       });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.status(400).json({
-        message: "Invalid credentials",
-      });
-    }
-
-    const token = jwt.sign(
-      {
-        id: user._id,
-      },
-      "secretkey",
-      {
-        expiresIn: "1d",
-      }
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
     );
 
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Invalid password",
+      });
+    }
+
     res.json({
-      token,
-      user,
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id),
     });
   } catch (error) {
     console.log(error);
 
     res.status(500).json({
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
