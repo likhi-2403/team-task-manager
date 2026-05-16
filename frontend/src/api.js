@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API = axios.create({
   baseURL:
-    "https://team-task-manager-production-4d42.up.railway.app/api",
+    "https://worthy-elegance-production.up.railway.app/api",
 });
 
 API.interceptors.request.use((req) => {
