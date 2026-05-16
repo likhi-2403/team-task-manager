@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import API from "../api";
 
 function Register() {
@@ -27,8 +27,6 @@ function Register() {
 
       navigate("/dashboard");
     } catch (error) {
-      console.log(error);
-
       alert(
         error.response?.data?.message ||
           "Registration Failed"
@@ -53,7 +51,6 @@ function Register() {
           padding: "40px",
           borderRadius: "10px",
           width: "350px",
-          boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
         }}
       >
         <h2
@@ -75,8 +72,6 @@ function Register() {
             width: "100%",
             padding: "12px",
             marginBottom: "15px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
           }}
         />
 
@@ -90,8 +85,6 @@ function Register() {
             width: "100%",
             padding: "12px",
             marginBottom: "15px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
           }}
         />
 
@@ -105,8 +98,6 @@ function Register() {
             width: "100%",
             padding: "12px",
             marginBottom: "15px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
           }}
         />
 
@@ -117,8 +108,6 @@ function Register() {
             width: "100%",
             padding: "12px",
             marginBottom: "20px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
           }}
         >
           <option value="Admin">Admin</option>
@@ -133,9 +122,6 @@ function Register() {
             backgroundColor: "#2563eb",
             color: "white",
             border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            fontSize: "16px",
           }}
         >
           Register
